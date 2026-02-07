@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success - User Registered</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark svg {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: draw 0.5s ease-out 0.3s forwards;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .details {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .details h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .details ul {
+            list-style: none;
+        }
+
+        .details li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .details li:last-child {
+            border-bottom: none;
+        }
+
+        .details li strong {
+            color: #333;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="checkmark">
+        <svg viewBox="0 0 52 52">
+            <path d="M14 27l7.5 7.5L38 18"/>
+        </svg>
+    </div>
+
+    <h1>Registration Successful!</h1>
+    <p>Your user data has been successfully processed.</p>
+
+    <div class="details">
+        <h3>What Happened:</h3>
+        <ul>
+            <li><strong>✓ Database:</strong> Record saved to MySQL</li>
+            <li><strong>✓ Input Topic:</strong> Plain JSON message sent</li>
+            <li><strong>✓ Serialized Topic:</strong> Base64 encoded message sent</li>
+        </ul>
+    </div>
+
+    <p>You can now test consuming these messages from Kafka topics.</p>
+
+    <a href="/" class="button">Register Another User</a>
+</div>
+</body>
+</html>
