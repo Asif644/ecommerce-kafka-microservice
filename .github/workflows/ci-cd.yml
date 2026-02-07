@@ -111,11 +111,11 @@ jobs:
       - name: Wait for Services
         run: |
           echo "Waiting for MySQL..."
-          timeout 10 bash -c 'until mysqladmin ping -h localhost -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
+          timeout 100 bash -c 'until mysqladmin ping -h localhost -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
           echo "✓ MySQL ready"
           
           echo "Waiting for Kafka..."
-          timeout 10 bash -c 'until nc -z localhost 9092; do sleep 3; done'
+          timeout 100 bash -c 'until nc -z localhost 9092; do sleep 3; done'
           echo "✓ Kafka ready"
 
       - name: Start Spring Boot Application
