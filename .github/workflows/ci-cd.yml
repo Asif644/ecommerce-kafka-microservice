@@ -175,10 +175,7 @@ jobs:
         with:
           name: app-logs
           path: app.log
-<<<<<<< HEAD
           retention-days: 7
-=======
-
 #  deploy-to-tst:
 #    name: Deploy to TST
 #    runs-on: ubuntu-latest
