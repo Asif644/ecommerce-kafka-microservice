@@ -92,6 +92,11 @@ jobs:
           KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
         ports:
           - 9092:9092
+        options: >-
+          --health-cmd "nc -z localhost 9092"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
       - name: Checkout code
@@ -121,19 +126,12 @@ jobs:
 #          echo "✓ Kafka ready"
       - name: Wait for Kafka Readiness
         run: |
-          echo "Waiting for Zookeeper to be ready..."
-          timeout 60 bash -c 'until echo ruok | nc 127.0.0.1 2181 | grep imok; do 
-            echo "Zookeeper is not ready yet..."
-            sleep 2
-          done'
-          echo "✓ Zookeeper is up and running!"
-          echo "Waiting for Kafka to bind to port 9092..."
-          # Install netcat if not present
-          sudo apt-get install -y netcat-openbsd
-          timeout 60 bash -c 'until nc -z 127.0.0.1 9092; do echo "Kafka not ready..."; sleep 5; done'
-          echo "✓ Kafka port is open"
-          # Give it 10 more seconds for the metadata leader election to finish
-          sleep 10
+          echo "Waiting for Zookeeper..."
+          timeout 60 bash -c 'until nc -z 127.0.0.1 2181; do sleep 3; done'
+          echo "✓ Zookeeper ready"
+          echo "Waiting for Kafka..."
+          timeout 60 bash -c 'until nc -z 127.0.0.1 9092; do sleep 3; done'
+          echo "✓ Kafka ready"
         
       - name: Start Spring Boot Application
         run: |
