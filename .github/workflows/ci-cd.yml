@@ -67,10 +67,11 @@ jobs:
           --health-retries 10
 
       zookeeper:
-        image: confluentinc/cp-zookeeper:latest
+        image: confluentinc/cp-zookeeper:7.5.3
         env:
           ZOOKEEPER_CLIENT_PORT: 2181
           ZOOKEEPER_TICK_TIME: 2000
+          KAFKA_HEAP_OPTS: "-Xms128m -Xmx256m"
         ports:
           - 2181:2181
         options: >-
@@ -80,7 +81,7 @@ jobs:
           --health-retries 5
 
       kafka:
-        image: confluentinc/cp-kafka:latest
+        image: confluentinc/cp-kafka:7.5.3
         env:
           KAFKA_BROKER_ID: 1
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -88,6 +89,7 @@ jobs:
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
           KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
           KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_HEAP_OPTS: "-Xms256m -Xmx384m"
         ports:
           - 9092:9092
     
