@@ -5,15 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@Import(TestConfig.class)  // Import the test configuration
+@SpringBootTest
+@Import(TestConfig.class)
 class KafkaUserServiceApplicationTests {
-
     @Test
     void contextLoads() {
-        // This test verifies that the application context loads successfully
     }
-
 }
