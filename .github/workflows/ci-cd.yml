@@ -108,15 +108,15 @@ jobs:
           path: spring-boot-app/target
 
       # Wait for all services to be healthy
-      - name: Wait for Services
-        run: |
-          echo "Waiting for MySQL..."
-          timeout 30 bash -c 'until mysqladmin ping -h mysql -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
-          echo "✓ MySQL ready"
+#      - name: Wait for Services
+#        run: |
+#          echo "Waiting for MySQL..."
+#          timeout 30 bash -c 'until mysqladmin ping -h mysql -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
+#          echo "✓ MySQL ready"
           
-          echo "Waiting for Kafka..."
-          timeout 60 bash -c 'until nc -z kafka 9092; do sleep 3; done'
-          echo "✓ Kafka ready"
+#          echo "Waiting for Kafka..."
+#          timeout 60 bash -c 'until nc -z kafka 9092; do sleep 3; done'
+#          echo "✓ Kafka ready"
 
       - name: Start Spring Boot Application
         run: |
