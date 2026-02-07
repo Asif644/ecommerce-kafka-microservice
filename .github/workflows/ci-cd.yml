@@ -175,4 +175,28 @@ jobs:
         with:
           name: app-logs
           path: app.log
+<<<<<<< HEAD
           retention-days: 7
+=======
+
+#  deploy-to-tst:
+#    name: Deploy to TST
+#    runs-on: ubuntu-latest
+#    needs: playwright-tests
+#    if: github.ref == 'refs/heads/main'
+#    
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Download JAR
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: spring-boot-jar
+#          path: artifacts
+#
+#      - name: Deploy notification
+#        run: |
+#          echo "🚀 Deployment to TST would happen here"
+#          echo "JAR file: $(ls artifacts/)"
+>>>>>>> 9ef22842b485e3897989254a5204fab070fce2f6
