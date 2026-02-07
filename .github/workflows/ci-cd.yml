@@ -33,12 +33,15 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: ./spring-boot-app
 
+      # Unit tests will use H2 (in-memory database)
       - name: Run Unit Tests
         run: mvn test
         working-directory: ./spring-boot-app
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
       - name: Upload JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: spring-boot-jar
           path: spring-boot-app/target/*.jar
@@ -61,7 +64,7 @@ jobs:
           --health-cmd "mysqladmin ping -h localhost -ptestpassword"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
       zookeeper:
         image: confluentinc/cp-zookeeper:latest
@@ -70,6 +73,11 @@ jobs:
           ZOOKEEPER_TICK_TIME: 2000
         ports:
           - 2181:2181
+        options: >-
+          --health-cmd "nc -z localhost 2181"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
       kafka:
         image: confluentinc/cp-kafka:latest
@@ -78,6 +86,8 @@ jobs:
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
           KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
         ports:
           - 9092:9092
     
@@ -92,10 +102,21 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Download Spring Boot JAR
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: spring-boot-jar
           path: spring-boot-app/target
+
+      # Wait for all services to be healthy
+      - name: Wait for Services
+        run: |
+          echo "Waiting for MySQL..."
+          timeout 30 bash -c 'until mysqladmin ping -h localhost -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
+          echo "✓ MySQL ready"
+          
+          echo "Waiting for Kafka..."
+          timeout 60 bash -c 'until nc -z localhost 9092; do sleep 3; done'
+          echo "✓ Kafka ready"
 
       - name: Start Spring Boot Application
         run: |
@@ -107,8 +128,8 @@ jobs:
             --spring.datasource.password=testpassword \
             > app.log 2>&1 &
           
-          echo "Waiting for app to start..."
-          timeout 90 bash -c 'until curl -f http://localhost:8081/register; do sleep 3; done'
+          echo "Waiting for application to start..."
+          timeout 120 bash -c 'until curl -f http://localhost:8081/register 2>/dev/null; do sleep 3; done'
           echo "✓ Application ready"
 
       - name: Set up Node.js
@@ -142,7 +163,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-tests/playwright-report/
@@ -150,28 +171,8 @@ jobs:
 
       - name: Upload app logs
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-logs
           path: app.log
-
-#  deploy-to-tst:
-#    name: Deploy to TST
-#    runs-on: ubuntu-latest
-#    needs: playwright-tests
-#    if: github.ref == 'refs/heads/main'
-#    
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Download JAR
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: spring-boot-jar
-#          path: artifacts
-#
-#      - name: Deploy notification
-#        run: |
-#          echo "🚀 Deployment to TST would happen here"
-#          echo "JAR file: $(ls artifacts/)"
+          retention-days: 7
