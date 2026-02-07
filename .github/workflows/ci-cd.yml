@@ -85,6 +85,8 @@ jobs:
           KAFKA_BROKER_ID: 1
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
           KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
           KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
           KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -117,7 +119,22 @@ jobs:
 #          echo "Waiting for Kafka..."
 #          timeout 60 bash -c 'until nc -z kafka 9092; do sleep 3; done'
 #          echo "✓ Kafka ready"
-
+      - name: Wait for Kafka Readiness
+        run: |
+          echo "Waiting for Zookeeper to be ready..."
+          timeout 60 bash -c 'until echo ruok | nc 127.0.0.1 2181 | grep imok; do 
+            echo "Zookeeper is not ready yet..."
+            sleep 2
+          done'
+          echo "✓ Zookeeper is up and running!"
+          echo "Waiting for Kafka to bind to port 9092..."
+          # Install netcat if not present
+          sudo apt-get install -y netcat-openbsd
+          timeout 60 bash -c 'until nc -z 127.0.0.1 9092; do echo "Kafka not ready..."; sleep 5; done'
+          echo "✓ Kafka port is open"
+          # Give it 10 more seconds for the metadata leader election to finish
+          sleep 10
+        
       - name: Start Spring Boot Application
         run: |
           nohup java -jar spring-boot-app/target/*.jar \
