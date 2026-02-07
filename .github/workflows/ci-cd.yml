@@ -80,16 +80,17 @@ jobs:
           --health-retries 5
 
       kafka:
-        image: confluentinc/cp-kafka:latest
+        image: confluentinc/cp-kafka:7.5.0
         env:
           KAFKA_BROKER_ID: 1
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
           KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
           KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
           KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
           KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
         ports:
           - 9092:9092
     
@@ -127,6 +128,9 @@ jobs:
           echo "Waiting for Kafka..."
           timeout 60 bash -c 'until nc -z 127.0.0.1 9092; do sleep 3; done'
           echo "✓ Kafka ready"
+      - name: Debug Kafka Logs
+        if: failure() || always()
+        run: docker logs $(docker ps -qf "ancestor=confluentinc/cp-kafka")
         
       - name: Start Spring Boot Application
         run: |
