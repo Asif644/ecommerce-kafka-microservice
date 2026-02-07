@@ -61,7 +61,7 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd "mysqladmin ping -h localhost -ptestpassword"
+          --health-cmd "mysqladmin ping -h mysql -ptestpassword"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -74,7 +74,7 @@ jobs:
         ports:
           - 2181:2181
         options: >-
-          --health-cmd "nc -z localhost 2181"
+          --health-cmd "nc -z kafka 2181"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -84,7 +84,7 @@ jobs:
         env:
           KAFKA_BROKER_ID: 1
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
           KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
           KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -111,19 +111,19 @@ jobs:
       - name: Wait for Services
         run: |
           echo "Waiting for MySQL..."
-          timeout 100 bash -c 'until mysqladmin ping -h localhost -P 3306 -u root -ptestpassword --silent; do sleep 2; done'
+          timeout 30 bash -c 'until mysqladmin ping -h mysql -u root -ptestpassword --silent; do sleep 2; done'
           echo "✓ MySQL ready"
           
           echo "Waiting for Kafka..."
-          timeout 100 bash -c 'until nc -z localhost 9092; do sleep 3; done'
+          timeout 60 bash -c 'until nc -z kafka 9092; do sleep 3; done'
           echo "✓ Kafka ready"
 
       - name: Start Spring Boot Application
         run: |
           nohup java -jar spring-boot-app/target/*.jar \
             --spring.profiles.active=test \
-            --spring.kafka.bootstrap-servers=localhost:9092 \
-            --spring.datasource.url=jdbc:mysql://localhost:3306/user_data_db \
+            --spring.kafka.bootstrap-servers=kafka:9092 \
+            --spring.datasource.url=jdbc:mysql://mysql:3306/user_data_db \
             --spring.datasource.username=root \
             --spring.datasource.password=testpassword \
             > app.log 2>&1 &
@@ -150,12 +150,12 @@ jobs:
       - name: Run Playwright tests
         env:
           APP_URL: http://localhost:8081
-          DB_HOST: localhost
+          DB_HOST: mysql
           DB_PORT: 3306
           DB_USER: root
           DB_PASSWORD: testpassword
           DB_NAME: user_data_db
-          KAFKA_BROKER: localhost:9092
+          KAFKA_BROKER: kafka:9092
           KAFKA_USER_EVENTS_TOPIC: user-events-topic
           KAFKA_USER_EVENTS_SERIALIZED_TOPIC: user-events-serialized-topic
         run: npm test
