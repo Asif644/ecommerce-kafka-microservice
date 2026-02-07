@@ -196,4 +196,3 @@ jobs:
 #        run: |
 #          echo "🚀 Deployment to TST would happen here"
 #          echo "JAR file: $(ls artifacts/)"
->>>>>>> 9ef22842b485e3897989254a5204fab070fce2f6
