@@ -40,7 +40,7 @@ test.describe('Complete Registration and Login Flow', () => {
     await page.waitForTimeout(3000);
     console.log('✓ Registration completed');
 
-    // Validate registration in DB
+    // Validate registration in Mysql DB
     const registeredUser = await db.getUserByEmail(testUser.email);
     expect(registeredUser).toBeTruthy();
     console.log('✓ User found in database');
